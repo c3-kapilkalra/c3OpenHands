@@ -29,6 +29,7 @@ from openhands.server.routes.security import app as security_api_router
 from openhands.server.routes.settings import app as settings_router
 from openhands.server.routes.trajectory import app as trajectory_router
 from openhands.server.shared import conversation_manager, server_config
+from openhands.server.path_utils import get_root_path
 from openhands.server.types import AppMode
 
 mcp_app = mcp_server.http_app(path='/mcp')
@@ -58,6 +59,7 @@ app = FastAPI(
     version=__version__,
     lifespan=combine_lifespans(_lifespan, mcp_app.lifespan),
     routes=[Mount(path='/mcp', app=mcp_app)],
+    root_path=get_root_path(),
 )
 
 

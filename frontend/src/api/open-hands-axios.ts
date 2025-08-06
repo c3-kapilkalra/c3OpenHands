@@ -1,7 +1,10 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 
+// Get the base path from Vite's BASE_URL, removing trailing slash for consistency
+const basePath = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
+
 export const openHands = axios.create({
-  baseURL: `${window.location.protocol}//${import.meta.env.VITE_BACKEND_BASE_URL || window?.location.host}`,
+  baseURL: `${window.location.protocol}//${import.meta.env.VITE_BACKEND_BASE_URL || window?.location.host}${basePath}`,
 });
 
 // Helper function to check if a response contains an email verification error

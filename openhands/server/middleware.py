@@ -128,7 +128,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
     def is_rate_limited_request(self, request: StarletteRequest) -> bool:
+        # Exclude static assets from rate limiting
         if request.url.path.startswith('/assets'):
             return False
-        # Put Other non rate limited checks here
+        # Exclude health check endpoint from rate limiting
+        if request.url.path == '/health':
+            return False
+        # Put other non rate limited checks here
         return True
