@@ -8,22 +8,22 @@
  */
 export function getBasePath(): string {
   // In Vite builds, import.meta.env.BASE_URL is available
-  if (typeof import.meta !== 'undefined' && import.meta?.env?.BASE_URL) {
+  if (typeof import.meta !== "undefined" && import.meta?.env?.BASE_URL) {
     return import.meta.env.BASE_URL;
   }
-  
+
   // Fallback: derive from document.baseURI
-  if (typeof document !== 'undefined' && document.baseURI) {
+  if (typeof document !== "undefined" && document.baseURI) {
     try {
       const url = new URL(document.baseURI);
       const path = url.pathname;
-      return path === '/' ? '/' : path;
+      return path === "/" ? "/" : path;
     } catch {
       // Fallback if URL parsing fails
     }
   }
-  
-  return '/';
+
+  return "/";
 }
 
 /**
@@ -31,27 +31,35 @@ export function getBasePath(): string {
  */
 export function getApiBaseUrl(): string {
   const basePath = getBasePath();
-  const protocol = window.location.protocol;
-  const host = window.location.host;
-  
+  const { protocol } = window.location;
+  const { host } = window.location;
+
   // Remove trailing slash from base path for consistent URL construction
-  const cleanBasePath = basePath === '/' ? '' : basePath.replace(/\/$/, '');
-  
+  const cleanBasePath = basePath === "/" ? "" : basePath.replace(/\/$/, "");
+
   return `${protocol}//${host}${cleanBasePath}`;
 }
 
 /**
  * Get the WebSocket base URL for WebSocket connections
+ * Returns host only for socket.io compatibility
  */
 export function getWebSocketBaseUrl(): string {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const { host } = window.location;
+
+  // For socket.io, we only return the host, not the full URL with path
+  // The path will be handled by socket.io configuration
+  return `${protocol}//${host}`;
+}
+
+/**
+ * Get the WebSocket path for socket.io connections
+ */
+export function getWebSocketPath(): string {
   const basePath = getBasePath();
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.host;
-  
-  // Remove trailing slash from base path for consistent URL construction
-  const cleanBasePath = basePath === '/' ? '' : basePath.replace(/\/$/, '');
-  
-  return `${protocol}//${host}${cleanBasePath}`;
+  const cleanBasePath = basePath === "/" ? "" : basePath.replace(/\/$/, "");
+  return `${cleanBasePath}/socket.io/`;
 }
 
 /**
@@ -59,16 +67,16 @@ export function getWebSocketBaseUrl(): string {
  */
 export function resolveUrl(path: string): string {
   const basePath = getBasePath();
-  
+
   // Ensure path starts with /
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
   // If base path is root, just return the path
-  if (basePath === '/') {
+  if (basePath === "/") {
     return cleanPath;
   }
-  
+
   // Remove trailing slash from base path and combine
-  const cleanBasePath = basePath.replace(/\/$/, '');
+  const cleanBasePath = basePath.replace(/\/$/, "");
   return `${cleanBasePath}${cleanPath}`;
 }

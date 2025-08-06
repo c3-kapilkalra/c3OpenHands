@@ -35,9 +35,7 @@ export default defineConfig(({ mode }) => {
     base: VITE_APP_BASE_URL,
     publicDir: "public",
     plugins: [
-      !process.env.VITEST && reactRouter({
-        basename: VITE_APP_BASE_URL,
-      }),
+      !process.env.VITEST && reactRouter(),
       viteTsconfigPaths(),
       svgr(),
       tailwindcss(),

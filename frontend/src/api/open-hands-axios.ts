@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { getApiBaseUrl } from "../utils/url";
 
 export const openHands = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_BASE_URL 
+  baseURL: import.meta.env.VITE_BACKEND_BASE_URL
     ? `${window.location.protocol}//${import.meta.env.VITE_BACKEND_BASE_URL}`
     : getApiBaseUrl(),
 });

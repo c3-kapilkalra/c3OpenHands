@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { Route } from "./+types/settings";
+import { Route } from "./+types/microagent-management";
 import { queryClient } from "#/query-client-config";
 import { GetConfigResponse } from "#/api/open-hands.types";
 import OpenHands from "#/api/open-hands";
