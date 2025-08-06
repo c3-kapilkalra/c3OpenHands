@@ -25,6 +25,12 @@ export default defineConfig(({ mode }) => {
   const WS_URL = `${WS_PROTOCOL}://${VITE_BACKEND_HOST}/`;
   const FE_PORT = Number.parseInt(VITE_FRONTEND_PORT, 10);
 
+  // Create dynamic proxy paths based on base URL
+  const baseUrlPath = VITE_APP_BASE_URL === "/" ? "" : VITE_APP_BASE_URL.replace(/\/$/, "");
+  const apiProxyPath = `${baseUrlPath}/api`;
+  const wsProxyPath = `${baseUrlPath}/ws`;
+  const socketIoProxyPath = `${baseUrlPath}/socket.io`;
+
   return {
     base: VITE_APP_BASE_URL,
     publicDir: "public",
@@ -41,22 +47,25 @@ export default defineConfig(({ mode }) => {
       host: true,
       allowedHosts: true,
       proxy: {
-        "/api": {
+        [apiProxyPath]: {
           target: API_URL,
           changeOrigin: true,
           secure: !INSECURE_SKIP_VERIFY,
+          rewrite: (path) => path.replace(new RegExp(`^${baseUrlPath}`), ""),
         },
-        "/ws": {
+        [wsProxyPath]: {
           target: WS_URL,
           ws: true,
           changeOrigin: true,
           secure: !INSECURE_SKIP_VERIFY,
+          rewrite: (path) => path.replace(new RegExp(`^${baseUrlPath}`), ""),
         },
-        "/socket.io": {
+        [socketIoProxyPath]: {
           target: WS_URL,
           ws: true,
           changeOrigin: true,
           secure: !INSECURE_SKIP_VERIFY,
+          rewrite: (path) => path.replace(new RegExp(`^${baseUrlPath}`), ""),
           // rewriteWsOrigin: true,
         },
       },

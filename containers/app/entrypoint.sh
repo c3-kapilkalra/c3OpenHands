@@ -19,8 +19,18 @@ if [[ -n "$OPENHANDS_BASE_PATH" && "$OPENHANDS_BASE_PATH" != "/" ]]; then
 
   cd /app/frontend
   export VITE_APP_BASE_URL="$VITE_BASE_PATH"
-  npm ci
-  npm run build:subpath
+  
+  # Install dependencies and build frontend with error handling
+  if ! npm ci; then
+    echo "ERROR: Failed to install frontend dependencies" >&2
+    exit 1
+  fi
+  
+  if ! npm run build:subpath; then
+    echo "ERROR: Failed to build frontend for subpath $VITE_BASE_PATH" >&2
+    exit 1
+  fi
+  
   cd /app
 
   echo "Frontend rebuilt successfully for base path: $VITE_BASE_PATH"

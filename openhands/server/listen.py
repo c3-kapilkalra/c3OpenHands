@@ -14,6 +14,15 @@ from openhands.server.static import SPAStaticFiles
 
 # Get configurable base path from environment, default to root
 OPENHANDS_BASE_PATH = os.getenv('OPENHANDS_BASE_PATH', '/')
+
+# Validate and normalize the base path
+if OPENHANDS_BASE_PATH and not isinstance(OPENHANDS_BASE_PATH, str):
+    raise ValueError("OPENHANDS_BASE_PATH must be a string")
+
+# Check for potentially dangerous characters
+if OPENHANDS_BASE_PATH and any(char in OPENHANDS_BASE_PATH for char in ['<', '>', '"', "'", '&']):
+    raise ValueError("OPENHANDS_BASE_PATH contains invalid characters")
+
 # Ensure it starts with / and ends with /
 if not OPENHANDS_BASE_PATH.startswith('/'):
     OPENHANDS_BASE_PATH = '/' + OPENHANDS_BASE_PATH

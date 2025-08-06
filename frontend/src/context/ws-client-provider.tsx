@@ -28,6 +28,7 @@ import {
 } from "#/types/core/guards";
 import { useOptimisticUserMessage } from "#/hooks/use-optimistic-user-message";
 import { useWSErrorMessage } from "#/hooks/use-ws-error-message";
+import { getWebSocketBaseUrl } from "#/utils/url";
 
 export type WebSocketStatus = "CONNECTING" | "CONNECTED" | "DISCONNECTED";
 
@@ -321,7 +322,8 @@ export function WsClientProvider({
     if (conversation.url && !conversation.url.startsWith("/")) {
       baseUrl = new URL(conversation.url).host;
     } else {
-      baseUrl = import.meta.env.VITE_BACKEND_BASE_URL || window?.location.host;
+      // Use the WebSocket base URL utility for proper subpath support
+      baseUrl = import.meta.env.VITE_BACKEND_BASE_URL || getWebSocketBaseUrl();
     }
 
     sio = io(baseUrl, {
