@@ -1,0 +1,21 @@
+# C3 OpenHands - Useful Commands
+
+This document contains frequently used commands for building, deploying, and managing the C3 OpenHands application.
+
+
+# Build and Run the Docker image locally
+```bash
+docker build -t c3openhands/c3-openhands:latest .
+```
+
+# Build and Publish the docker image for production
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t us-west1-docker.pkg.dev/cicd-360621/docker/c3openhands/c3-openhands:0.51.1 \
+  -f containers/app/Dockerfile \
+  --push .
+```
+
+# Version is defined here
+`pyproject.toml`
