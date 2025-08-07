@@ -10,27 +10,28 @@ from openhands.server.middleware import (
     LocalhostCORSMiddleware,
     RateLimitMiddleware,
 )
+from openhands.server.path_utils import get_base_path, get_root_path
 from openhands.server.static import SPAStaticFiles
 
-# Get configurable base path from environment, default to root
-OPENHANDS_BASE_PATH = os.getenv('OPENHANDS_BASE_PATH', '/')
-# Ensure it starts with / and ends with /
-if not OPENHANDS_BASE_PATH.startswith('/'):
-    OPENHANDS_BASE_PATH = '/' + OPENHANDS_BASE_PATH
-OPENHANDS_BASE_PATH = OPENHANDS_BASE_PATH.rstrip('/') + '/'
-if OPENHANDS_BASE_PATH == '//':
-    OPENHANDS_BASE_PATH = '/'
-
 if os.getenv('SERVE_FRONTEND', 'true').lower() == 'true':
+    # When using root_path, FastAPI strips the prefix, so mount at root
+    # When not using root_path, mount at the full base path
+    mount_path = '/' if get_root_path() else get_base_path()
     base_app.mount(
-        OPENHANDS_BASE_PATH, SPAStaticFiles(directory='./frontend/build', html=True), name='dist'
+        mount_path, SPAStaticFiles(directory='./frontend/build', html=True), name='dist'
     )
 
 base_app.add_middleware(LocalhostCORSMiddleware)
 base_app.add_middleware(CacheControlMiddleware)
-base_app.add_middleware(
-    RateLimitMiddleware,
-    rate_limiter=InMemoryRateLimiter(requests=10, seconds=1),
-)
+
+# Configure rate limiting based on environment variables
+rate_limit_enabled = os.getenv('RATE_LIMIT_ENABLED', 'true').lower() == 'true'
+if rate_limit_enabled:
+    rate_limit_requests = int(os.getenv('RATE_LIMIT_REQUESTS', '10'))
+    rate_limit_seconds = int(os.getenv('RATE_LIMIT_SECONDS', '1'))
+    base_app.add_middleware(
+        RateLimitMiddleware,
+        rate_limiter=InMemoryRateLimiter(requests=rate_limit_requests, seconds=rate_limit_seconds),
+    )
 
 app = socketio.ASGIApp(sio, other_asgi_app=base_app)

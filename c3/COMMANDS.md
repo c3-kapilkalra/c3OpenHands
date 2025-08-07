@@ -5,7 +5,8 @@ This document contains frequently used commands for building, deploying, and man
 
 # Build and Run the Docker image locally
 ```bash
-docker build -t c3openhands/c3-openhands:latest .
+docker build -t openhands:latest -f containers/app/Dockerfile .
+docker run --rm -e OPENHANDS_BASE_PATH="/c3/c3/openhands/" -e SANDBOX_RUNTIME_CONTAINER_IMAGE=docker.all-hands.dev/all-hands-ai/runtime:0.51-nikolaik -e LOG_ALL_EVENTS=true -v /var/run/docker.sock:/var/run/docker.sock -v ~/.openhands:/.openhands -p 3000:3000 --add-host host.docker.internal:host-gateway --name openhands-app openhands:latest
 ```
 
 # Build and Publish the docker image for production
