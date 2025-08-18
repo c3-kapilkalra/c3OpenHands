@@ -1,6 +1,7 @@
 import os
 
 import socketio
+from openhands.server.path_utils import get_root_path
 from dotenv import load_dotenv
 
 from openhands.core.config import load_openhands_config
@@ -10,7 +11,7 @@ from openhands.server.conversation_manager.conversation_manager import (
     ConversationManager,
 )
 from openhands.server.monitoring import MonitoringListener
-from openhands.server.path_utils import get_base_path
+
 from openhands.server.types import ServerConfigInterface
 from openhands.storage import get_file_store
 from openhands.storage.conversation.conversation_store import ConversationStore
@@ -43,14 +44,18 @@ if redis_host:
     )
 
 
+# Configure socket.io to match the frontend path expectations  
+# When root_path is set, socket.io needs to listen on the full path including the root_path
+root_path = get_root_path()
+socket_io_path = root_path + '/socket.io' if root_path else '/socket.io'
+
 sio = socketio.AsyncServer(
     async_mode='asgi',
     cors_allowed_origins='*',
     client_manager=client_manager,
     # Increase buffer size to 4MB (to handle 3MB files with base64 overhead)
     max_http_buffer_size=4 * 1024 * 1024,
-    # Use subpath for socket.io connections to align with API routes
-    path=get_base_path().rstrip('/') + '/socket.io',
+    path=socket_io_path,
 )
 
 MonitoringListenerImpl = get_impl(
