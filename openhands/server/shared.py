@@ -44,18 +44,17 @@ if redis_host:
     )
 
 
-# Configure socket.io to match the frontend path expectations  
-# When root_path is set, socket.io needs to listen on the full path including the root_path
-root_path = get_root_path()
-socket_io_path = root_path + '/socket.io' if root_path else '/socket.io'
-
+# Configure socket.io server to work correctly with ASGI wrapper and FastAPI root_path
+# The key insight is that socketio.ASGIApp handles socket.io requests BEFORE FastAPI,
+# but the socket.io server path must match what the client connects to
 sio = socketio.AsyncServer(
     async_mode='asgi',
     cors_allowed_origins='*',
     client_manager=client_manager,
     # Increase buffer size to 4MB (to handle 3MB files with base64 overhead)
     max_http_buffer_size=4 * 1024 * 1024,
-    path=socket_io_path,
+    # Always use '/socket.io' - the ASGI wrapper will handle subpath routing
+    path='/socket.io',
 )
 
 MonitoringListenerImpl = get_impl(
