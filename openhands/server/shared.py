@@ -10,6 +10,7 @@ from openhands.server.conversation_manager.conversation_manager import (
     ConversationManager,
 )
 from openhands.server.monitoring import MonitoringListener
+from openhands.server.path_utils import get_base_path
 from openhands.server.types import ServerConfigInterface
 from openhands.storage import get_file_store
 from openhands.storage.conversation.conversation_store import ConversationStore
@@ -48,6 +49,8 @@ sio = socketio.AsyncServer(
     client_manager=client_manager,
     # Increase buffer size to 4MB (to handle 3MB files with base64 overhead)
     max_http_buffer_size=4 * 1024 * 1024,
+    # Use subpath for socket.io connections to align with API routes
+    path=get_base_path().rstrip('/') + '/socket.io',
 )
 
 MonitoringListenerImpl = get_impl(

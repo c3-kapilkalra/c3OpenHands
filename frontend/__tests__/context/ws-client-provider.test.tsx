@@ -7,6 +7,7 @@ import {
   WsClientProvider,
   useWsClient,
 } from "#/context/ws-client-provider";
+import { io } from "socket.io-client";
 
 describe("Propagate error message", () => {
   it("should do nothing when no message was passed from server", () => {
@@ -33,6 +34,7 @@ vi.mock("socket.io-client", () => ({
     on: mockOn,
     off: mockOff,
     disconnect: mockDisconnect,
+    connected: false,
     io: {
       opts: {
         query: {},
@@ -95,5 +97,29 @@ describe("WsClientProvider", () => {
       },
       { timeout: 1000 },
     );
+  });
+
+  it("should call socket.io with path option", async () => {
+    render(<TestComponent />, {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={new QueryClient()}>
+          <WsClientProvider conversationId="test-conversation-id">
+            {children}
+          </WsClientProvider>
+        </QueryClientProvider>
+      ),
+    });
+
+    // Wait for the socket.io connection to be established
+    await waitFor(() => {
+      const ioMock = vi.mocked(io);
+      expect(ioMock).toHaveBeenCalled();
+    });
+
+    // Verify that socket.io was called with path option
+    const ioMock = vi.mocked(io);
+    const ioCallArgs = ioMock.mock.calls[0];
+    expect(ioCallArgs[1]).toHaveProperty('path');
+    expect(ioCallArgs[1].path).toMatch(/\/socket\.io$/);
   });
 });
