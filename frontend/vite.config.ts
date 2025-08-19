@@ -8,13 +8,17 @@ import { configDefaults } from "vitest/config";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
   const {
     VITE_BACKEND_HOST = "127.0.0.1:3000",
     VITE_USE_TLS = "false",
     VITE_FRONTEND_PORT = "3001",
     VITE_INSECURE_SKIP_VERIFY = "false",
-    VITE_APP_BASE_URL = "/",
-  } = loadEnv(mode, process.cwd());
+  } = env;
+
+  // Use the same approach as react-router.config.ts for consistency
+  const VITE_APP_BASE_URL =
+    process.env.VITE_APP_BASE_URL || env.VITE_APP_BASE_URL || "/";
 
   const USE_TLS = VITE_USE_TLS === "true";
   const INSECURE_SKIP_VERIFY = VITE_INSECURE_SKIP_VERIFY === "true";
@@ -26,20 +30,33 @@ export default defineConfig(({ mode }) => {
   const FE_PORT = Number.parseInt(VITE_FRONTEND_PORT, 10);
 
   // Normalize base URL for proxy paths
-  const normalizedBaseUrl = VITE_APP_BASE_URL.replace(/\/+$/, ''); // Remove trailing slashes
-  const apiPath = normalizedBaseUrl === '' ? '/api' : `${normalizedBaseUrl}/api`;
-  const wsPath = normalizedBaseUrl === '' ? '/ws' : `${normalizedBaseUrl}/ws`;
-  const socketIoPath = normalizedBaseUrl === '' ? '/socket.io' : `${normalizedBaseUrl}/socket.io`;
+  const normalizedBaseUrl = VITE_APP_BASE_URL.replace(/\/+$/, ""); // Remove trailing slashes
+  const apiPath =
+    normalizedBaseUrl === "" ? "/api" : `${normalizedBaseUrl}/api`;
+  const wsPath = normalizedBaseUrl === "" ? "/ws" : `${normalizedBaseUrl}/ws`;
+  const socketIoPath =
+    normalizedBaseUrl === "" ? "/socket.io" : `${normalizedBaseUrl}/socket.io`;
 
   // Create dynamic proxy configuration based on base URL
-  const proxyConfig: Record<string, any> = {};
+  const proxyConfig: Record<
+    string,
+    {
+      target: string;
+      changeOrigin: boolean;
+      secure: boolean;
+      ws?: boolean;
+      rewrite?: (path: string) => string;
+    }
+  > = {};
 
   // API proxy
   proxyConfig[apiPath] = {
     target: API_URL,
     changeOrigin: true,
     secure: !INSECURE_SKIP_VERIFY,
-    rewrite: normalizedBaseUrl ? (path: string) => path.replace(new RegExp(`^${normalizedBaseUrl}`), '') : undefined,
+    rewrite: normalizedBaseUrl
+      ? (path: string) => path.replace(new RegExp(`^${normalizedBaseUrl}`), "")
+      : undefined,
   };
 
   // WebSocket proxy
@@ -48,7 +65,9 @@ export default defineConfig(({ mode }) => {
     ws: true,
     changeOrigin: true,
     secure: !INSECURE_SKIP_VERIFY,
-    rewrite: normalizedBaseUrl ? (path: string) => path.replace(new RegExp(`^${normalizedBaseUrl}`), '') : undefined,
+    rewrite: normalizedBaseUrl
+      ? (path: string) => path.replace(new RegExp(`^${normalizedBaseUrl}`), "")
+      : undefined,
   };
 
   // Socket.IO proxy
@@ -57,16 +76,16 @@ export default defineConfig(({ mode }) => {
     ws: true,
     changeOrigin: true,
     secure: !INSECURE_SKIP_VERIFY,
-    rewrite: normalizedBaseUrl ? (path: string) => path.replace(new RegExp(`^${normalizedBaseUrl}`), '') : undefined,
+    rewrite: normalizedBaseUrl
+      ? (path: string) => path.replace(new RegExp(`^${normalizedBaseUrl}`), "")
+      : undefined,
   };
 
   return {
     base: VITE_APP_BASE_URL,
     publicDir: "public",
     plugins: [
-      !process.env.VITEST && reactRouter({
-        basename: VITE_APP_BASE_URL,
-      }),
+      !process.env.VITEST && reactRouter(),
       viteTsconfigPaths(),
       svgr(),
       tailwindcss(),

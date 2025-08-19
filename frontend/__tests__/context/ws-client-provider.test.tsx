@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { io } from "socket.io-client";
 import {
   updateStatusWhenErrorMessagePresent,
   WsClientProvider,
@@ -33,6 +34,7 @@ vi.mock("socket.io-client", () => ({
     on: mockOn,
     off: mockOff,
     disconnect: mockDisconnect,
+    connected: false,
     io: {
       opts: {
         query: {},
@@ -95,5 +97,29 @@ describe("WsClientProvider", () => {
       },
       { timeout: 1000 },
     );
+  });
+
+  it("should call socket.io with path option", async () => {
+    render(<TestComponent />, {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={new QueryClient()}>
+          <WsClientProvider conversationId="test-conversation-id">
+            {children}
+          </WsClientProvider>
+        </QueryClientProvider>
+      ),
+    });
+
+    // Wait for the socket.io connection to be established
+    await waitFor(() => {
+      const ioMock = vi.mocked(io);
+      expect(ioMock).toHaveBeenCalled();
+    });
+
+    // Verify that socket.io was called with path option
+    const ioMock = vi.mocked(io);
+    const ioCallArgs = ioMock.mock.calls[0];
+    expect(ioCallArgs[1]).toHaveProperty("path");
+    expect(ioCallArgs[1]?.path).toMatch(/\/socket\.io$/);
   });
 });

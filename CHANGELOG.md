@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.51.1] - 2025-08-19
+
+### **Frontend Subpath Configuration Fixes**
+
+**Fixed**: Resolved critical frontend asset loading and routing issues for subpath deployments.
+
+**Key Fixes**:
+- Fixed React Router v7 basename/base configuration mismatch causing dev server errors
+- Aligned Vite base configuration with React Router basename for consistent asset paths
+- Improved environment variable handling for VITE_APP_BASE_URL across build and runtime
+- Added TypeScript declarations for global Vite variables used in WebSocket client
+
+**Impact**: Frontend now correctly loads static assets (CSS, JS) with proper subpath prefixes in production builds. React Router routing works correctly with subpaths in both development and production.
+
+**Technical Details**:
+- React Router basename now uses consistent `process.env.VITE_APP_BASE_URL || "/"` configuration
+- Vite base configuration uses `process.env.VITE_APP_BASE_URL || env.VITE_APP_BASE_URL || "/"` for environment variable fallback
+- WebSocket client properly uses `import.meta.env.BASE_URL` for subpath-aware socket.io connections
+- Added global TypeScript declaration for `__VITE_APP_BASE_URL__`
+
+## [0.51.1] - 2025-08-18
+
+### **WebSocket Subpath Support Implementation**
+
+**Added**: Complete WebSocket support for subpath deployments, enabling real-time communication under custom subpaths.
+
+**Key Features**:
+- Socket.io server configuration with subpath-aware routing using `path` parameter
+- Custom ASGI middleware for proper WebSocket request routing under subpaths
+- Frontend WebSocket client updates to connect to correct subpath endpoints
+- Documentation for WebSocket subpath configuration and deployment
+
+**Impact**: Completes the subpath implementation by adding WebSocket support to match existing API and static file subpath functionality. Real-time features now work correctly under configured `OPENHANDS_BASE_PATH`.
+
+**Technical Details**:
+- Socket.io server uses `get_base_path().rstrip('/') + '/socket.io'` for subpath routing
+- ASGI middleware handles WebSocket upgrade requests at subpaths
+- Frontend clients connect to `${basePath}/socket.io` for consistent routing
+
 ## [0.51.1] - 2025-08-06
 
 ### **Backend API Subpath Support Fix**
