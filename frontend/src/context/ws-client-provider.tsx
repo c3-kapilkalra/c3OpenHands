@@ -324,9 +324,14 @@ export function WsClientProvider({
       baseUrl = import.meta.env.VITE_BACKEND_BASE_URL || window?.location.host;
     }
 
+    // Get the base path from Vite's BASE_URL for socket.io subpath support
+    const basePath = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
+    const socketPath = basePath + '/socket.io';
+
     sio = io(baseUrl, {
       transports: ["websocket"],
       query,
+      path: socketPath,
     });
 
     sio.on("connect", handleConnect);

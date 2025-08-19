@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.51.1] - 2025-08-18
+
+### **WebSocket Subpath Support Implementation**
+
+**Added**: Complete WebSocket support for subpath deployments, enabling real-time communication under custom subpaths.
+
+**Key Features**:
+- Socket.io server configuration with subpath-aware routing using `path` parameter
+- Custom ASGI middleware for proper WebSocket request routing under subpaths
+- Frontend WebSocket client updates to connect to correct subpath endpoints
+- Documentation for WebSocket subpath configuration and deployment
+
+**Impact**: Completes the subpath implementation by adding WebSocket support to match existing API and static file subpath functionality. Real-time features now work correctly under configured `OPENHANDS_BASE_PATH`.
+
+**Technical Details**:
+- Socket.io server uses `get_base_path().rstrip('/') + '/socket.io'` for subpath routing
+- ASGI middleware handles WebSocket upgrade requests at subpaths
+- Frontend clients connect to `${basePath}/socket.io` for consistent routing
+
 ## [0.51.1] - 2025-08-06
 
 ### **Backend API Subpath Support Fix**
