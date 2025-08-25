@@ -1,7 +1,6 @@
 import os
 
 import socketio
-from openhands.server.path_utils import get_root_path
 from dotenv import load_dotenv
 
 from openhands.core.config import load_openhands_config
@@ -11,7 +10,6 @@ from openhands.server.conversation_manager.conversation_manager import (
     ConversationManager,
 )
 from openhands.server.monitoring import MonitoringListener
-
 from openhands.server.types import ServerConfigInterface
 from openhands.storage import get_file_store
 from openhands.storage.conversation.conversation_store import ConversationStore
