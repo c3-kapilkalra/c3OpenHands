@@ -325,8 +325,8 @@ export function WsClientProvider({
     }
 
     // Get the base path from Vite's BASE_URL for socket.io subpath support
-    const basePath = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
-    const socketPath = basePath + '/socket.io';
+    const basePath = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
+    const socketPath = `${basePath}/socket.io`;
 
     sio = io(baseUrl, {
       transports: ["websocket"],

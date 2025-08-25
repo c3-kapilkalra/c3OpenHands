@@ -12,3 +12,7 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// Global variables defined in vite.config.ts
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const __VITE_APP_BASE_URL__: string;

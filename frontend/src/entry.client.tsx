@@ -60,15 +60,12 @@ async function prepareApp() {
 
 prepareApp().then(() =>
   startTransition(() => {
-    // Get base path from Vite's import.meta.env.BASE_URL
-    const basename = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
-
     hydrateRoot(
       document,
       <StrictMode>
         <Provider store={store}>
           <QueryClientProvider client={queryClient}>
-            <HydratedRouter basename={basename} />
+            <HydratedRouter />
             <PosthogInit />
             <div id="modal-portal-exit" />
           </QueryClientProvider>

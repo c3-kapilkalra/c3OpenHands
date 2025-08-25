@@ -1,4 +1,5 @@
 """Path utilities for handling subpath routing."""
+
 import os
 
 
