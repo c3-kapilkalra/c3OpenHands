@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { io } from "socket.io-client";
 import {
   updateStatusWhenErrorMessagePresent,
   WsClientProvider,
   useWsClient,
 } from "#/context/ws-client-provider";
-import { io } from "socket.io-client";
 
 describe("Propagate error message", () => {
   it("should do nothing when no message was passed from server", () => {
@@ -119,7 +119,7 @@ describe("WsClientProvider", () => {
     // Verify that socket.io was called with path option
     const ioMock = vi.mocked(io);
     const ioCallArgs = ioMock.mock.calls[0];
-    expect(ioCallArgs[1]).toHaveProperty('path');
-    expect(ioCallArgs[1].path).toMatch(/\/socket\.io$/);
+    expect(ioCallArgs[1]).toHaveProperty("path");
+    expect(ioCallArgs[1]?.path).toMatch(/\/socket\.io$/);
   });
 });
