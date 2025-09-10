@@ -1,13 +1,11 @@
-ARG OPENHANDS_BUILD_VERSION=dev
-FROM node:24.3.0-bookworm-slim AS frontend-builder
+# PRE_REQUIREMENTS:
+# cd frontend
+# npm ci
+# npm run build
+#
+# No frontend build stage needed
+# Just copy the local build into final image
 
-WORKDIR /app
-
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
-
-COPY frontend ./
-RUN npm run build
 
 FROM python:3.12.10-slim AS base
 FROM base AS backend-builder
@@ -86,7 +84,7 @@ RUN python openhands/core/download.py # No-op to download assets
 # openhands:openhands -> openhands:app
 RUN find /app \! -group app -exec chgrp app {} +
 
-COPY --chown=openhands:app --chmod=770 --from=frontend-builder /app/build ./frontend/build
+COPY --chown=openhands:app --chmod=770 ./frontend/build ./frontend/build
 COPY --chown=openhands:app --chmod=770 ./frontend ./frontend
 COPY --chown=openhands:app --chmod=770 ./containers/app/entrypoint.sh /app/entrypoint.sh
 
